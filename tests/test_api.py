@@ -58,6 +58,43 @@ def test_create_item_validation_error_is_422(client):
     assert res.status_code == 422
 
 
+def test_write_is_open_when_no_api_key_configured(client):
+    """Demo posture: unset API_KEY leaves the write path open."""
+    from app.config import settings
+
+    assert not settings.api_key
+    site_id = client.get("/sites").json()[0]["id"]
+    res = client.post(
+        "/items",
+        json={"name": "Open", "model_number": "M", "type": "t", "site_id": site_id},
+    )
+    assert res.status_code == 201
+
+
+def test_write_requires_key_once_configured(client, monkeypatch):
+    """Setting API_KEY switches enforcement on with no code change."""
+    from app.config import settings
+
+    monkeypatch.setattr(settings, "api_key", "s3cret")
+    site_id = client.get("/sites").json()[0]["id"]
+    body = {"name": "Guarded", "model_number": "M", "type": "t", "site_id": site_id}
+
+    assert client.post("/items", json=body).status_code == 401
+    assert client.post("/items", json=body, headers={"X-API-Key": "wrong"}).status_code == 401
+    assert client.post("/items", json=body, headers={"X-API-Key": "s3cret"}).status_code == 201
+
+
+def test_sql_injection_payload_is_treated_as_data(client):
+    """Injection attempts are bound parameters, not SQL. The table survives."""
+    evil = "'; DROP TABLE items; --"
+    res = client.get("/items", params={"q": evil})
+    assert res.status_code == 200
+    assert res.json()["total"] == 0
+
+    # The table is still there and still populated.
+    assert client.get("/items").json()["total"] == 3
+
+
 def test_items_by_site_report(client):
     body = client.get("/reports/items-by-site").json()
     counts = {(r["site_code"], r["type"]): r["count"] for r in body["rows"]}

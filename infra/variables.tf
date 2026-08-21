@@ -21,6 +21,17 @@ variable "db_instance_class" {
   default     = "db.t4g.micro"
 }
 
+variable "api_key" {
+  description = <<-EOT
+    Key required by POST /items. Empty leaves the write path open, which is what
+    this demo runs so the endpoint can be tried without credentials. Setting it
+    switches enforcement on with no code change — see app/security.py.
+  EOT
+  type        = string
+  default     = ""
+  sensitive   = true
+}
+
 variable "postgres_version" {
   description = "Major Postgres version; AWS resolves the latest minor."
   type        = string

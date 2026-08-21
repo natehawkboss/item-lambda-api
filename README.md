@@ -43,8 +43,8 @@ Interactive docs at `/docs`, machine-readable schema at `/openapi.json`.
 
 ## Deploy
 
-Lambda (arm64) behind a Function URL, talking to a private RDS Postgres. No
-Docker required — `uv` cross-resolves Linux wheels from macOS.
+API Gateway HTTP API → Lambda (arm64) → private RDS Postgres. No Docker
+required — `uv` cross-resolves Linux wheels from macOS.
 
 ```bash
 ./scripts/build_lambda.sh                    # -> build/lambda.zip
@@ -54,11 +54,15 @@ cp terraform.tfvars.example terraform.tfvars # set your AWS profile
 terraform init
 terraform apply
 
+# create tables and load the CSVs (runs inside the VPC)
 aws lambda invoke --function-name "$(terraform output -raw seed_function_name)" \
-  --profile <profile> /dev/stdout            # create tables + load CSVs
+  --profile <profile> /dev/stdout
 
 curl "$(terraform output -raw api_url)health"
 ```
+
+Re-running the seeder with `--payload '{"reset":true}'` clears items and
+restores the dataset to what `data/items.csv` describes.
 
 `terraform destroy` removes everything.
 
@@ -78,15 +82,26 @@ curl "$(terraform output -raw api_url)health"
 
 ## Auth
 
-`app/security.py` implements API-key auth — timing-safe comparison, fails closed
-if enabled without a key configured. It is **deliberately not wired up**: the
-`dependencies=[Depends(require_api_key)]` lines are commented out in
-`app/routers/items.py` and `app/main.py` so the endpoints stay open to try.
+`POST /items` is wired to `require_api_key` from `app/security.py` — it is live
+code, not a commented-out example. Enforcement is driven by configuration
+rather than by editing source: set `API_KEY` in the environment and writes
+require a matching `X-API-Key` header.
+
+**This deployment leaves `API_KEY` unset, so the write path is open** and anyone
+can try it. That's a deliberate demo choice; the tests cover both postures.
 
 For a real deployment a shared secret is the fallback, not the first choice.
 Preferred, in order: a Lambda Function URL with `AWS_IAM` (callers sign requests
 with SigV4; the service stores no credential at all), then API Gateway usage
 plans (issuance, rotation and throttling handled outside the app), then this.
+
+### Input handling
+
+No string sanitizing anywhere, on purpose. Injection is prevented structurally:
+every value goes to Postgres as a bound parameter, so `'; DROP TABLE items; --`
+is stored and matched as ordinary text. Pydantic rejects malformed requests at
+the boundary with a `422` before any query runs, and responses are JSON, so
+there is no markup context to escape into. `tests/test_api.py` asserts it.
 
 ## Notes from deploying it
 

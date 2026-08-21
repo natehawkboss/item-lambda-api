@@ -1,13 +1,10 @@
-# API Gateway HTTP API in front of the same Lambda.
+# The public entrypoint: an API Gateway HTTP API proxying to the Lambda.
 #
-# Why this exists alongside the Function URL: the Function URL returns 403 in
-# this account even with authorization_type = NONE and a resource policy that
-# allows public invoke. An HTTP API is not gated the same way, so it is the
-# reliable public entrypoint here.
-#
-# The tradeoff, stated plainly: HTTP API integrations time out at 29 seconds.
-# Irrelevant for this app — every endpoint is a small indexed query — but it is
-# exactly the ceiling that would rule this out for heavy report generation.
+# Tradeoff worth stating: HTTP API integrations time out at 29 seconds.
+# Irrelevant here — every endpoint is a small indexed query — but it is exactly
+# the ceiling that would rule this out for heavy report generation, which would
+# want a job-and-poll design instead. (A Lambda Function URL avoids that limit;
+# see the README for why this deployment doesn't use one.)
 
 resource "aws_apigatewayv2_api" "http" {
   name          = "${var.name}-http"
@@ -46,9 +43,4 @@ resource "aws_lambda_permission" "apigw" {
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.http.execution_arn}/*/*"
-}
-
-output "public_url" {
-  description = "Public HTTPS endpoint (use this one)."
-  value       = aws_apigatewayv2_stage.default.invoke_url
 }

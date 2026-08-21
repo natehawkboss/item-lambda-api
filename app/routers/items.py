@@ -5,8 +5,7 @@ from sqlalchemy.orm import Session
 from app.db import get_db
 from app.models import Item, Site
 from app.schemas import ItemCreate, ItemOut, ItemPage
-
-# from app.security import require_api_key  # uncomment with the dependency below
+from app.security import require_api_key
 
 router = APIRouter(prefix="/items", tags=["items"])
 
@@ -37,19 +36,9 @@ def list_items(
     "",
     response_model=ItemOut,
     status_code=status.HTTP_201_CREATED,
-    # --- Auth, written but not enforced ------------------------------------
-    # app/security.py implements API-key auth. It is left switched off so the
-    # endpoint stays open to anyone who wants to try it. To enforce it, set
-    # API_KEY in the environment and uncomment the next line:
-    #
-    # dependencies=[Depends(require_api_key)],
-    #
-    # In the real deployment this would instead be a Function URL with
-    # AWS_IAM auth, so no shared secret is stored by the service at all.
-    # -----------------------------------------------------------------------
+    dependencies=[Depends(require_api_key)],
 )
 def create_item(payload: ItemCreate, db: Session = Depends(get_db)) -> Item:
-    """The write path. This endpoint is the entire reason a CSV in the repo won't do."""
     if db.get(Site, payload.site_id) is None:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_CONTENT, "Unknown site_id")
 

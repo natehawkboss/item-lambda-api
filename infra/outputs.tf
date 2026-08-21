@@ -1,11 +1,11 @@
 output "api_url" {
   description = "Public HTTPS endpoint for the API."
-  value       = aws_lambda_function_url.api.function_url
+  value       = aws_apigatewayv2_stage.default.invoke_url
 }
 
 output "docs_url" {
   description = "Swagger UI."
-  value       = "${aws_lambda_function_url.api.function_url}docs"
+  value       = "${aws_apigatewayv2_stage.default.invoke_url}docs"
 }
 
 output "seed_function_name" {

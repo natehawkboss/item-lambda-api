@@ -149,6 +149,9 @@ locals {
     # Anything other than "local" makes app/db.py refuse to start on SQLite.
     ENVIRONMENT = "production"
     DEBUG       = "false"
+
+    # Required by POST /items. Reads are open.
+    API_KEY = var.api_key
   }
 }
 
@@ -196,28 +199,7 @@ resource "aws_lambda_function" "seed" {
   depends_on = [aws_iam_role_policy_attachment.vpc_access]
 }
 
-# A Function URL rather than API Gateway: built-in HTTPS, no per-request
-# gateway cost, and no 29-second integration ceiling.
-#
-# authorization_type = "NONE" so the endpoint is open for anyone who wants to
-# try it. "AWS_IAM" is the production setting — callers then sign requests with
-# SigV4 against an IAM role and the service stores no credential at all.
-resource "aws_lambda_function_url" "api" {
-  function_name      = aws_lambda_function.api.function_name
-  authorization_type = "NONE"
-}
-
-# authorization_type = "NONE" only turns off IAM *authentication*. Lambda still
-# checks its resource policy for authorization, and an unlisted caller is denied
-# — so without this the URL answers 403 to everyone. Switching the URL to
-# AWS_IAM makes this permission unnecessary and should be deleted with it.
-resource "aws_lambda_permission" "public_function_url" {
-  statement_id           = "AllowPublicFunctionUrlInvoke"
-  action                 = "lambda:InvokeFunctionUrl"
-  function_name          = aws_lambda_function.api.function_name
-  principal              = "*"
-  function_url_auth_type = "NONE"
-}
+# The public entrypoint is an API Gateway HTTP API — see apigw.tf.
 
 resource "aws_cloudwatch_log_group" "api" {
   name              = "/aws/lambda/${aws_lambda_function.api.function_name}"
