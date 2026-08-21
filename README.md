@@ -3,12 +3,14 @@
 Asset reporting API over two entities: **sites** (locations) and **items** (name,
 model number, type). FastAPI + SQLAlchemy, SQLite locally, Postgres in production.
 
-**Running live:** https://am222hrzk4.execute-api.us-east-1.amazonaws.com
-· [Swagger UI](https://am222hrzk4.execute-api.us-east-1.amazonaws.com/docs)
-· [items-by-site report](https://am222hrzk4.execute-api.us-east-1.amazonaws.com/reports/items-by-site)
-
 API Gateway → Lambda (arm64, Python 3.12) → RDS Postgres in a private subnet.
-No auth, deliberately — see [Auth](#auth) below.
+
+> **The live demo has been taken down.** It ran at
+> `am222hrzk4.execute-api.us-east-1.amazonaws.com` until August 2026; the
+> infrastructure was torn down once it had served its purpose, so it wasn't
+> billing for a demo nobody was reading. Everything needed to stand it back up
+> is in `infra/` — see [Deploy](#deploy). Roughly six minutes, almost all of it
+> waiting on RDS.
 
 Built as a working version of an interview exercise — the point it makes is that
 storage and hosting are one decision, and the code is arranged so you can see it:
