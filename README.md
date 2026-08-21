@@ -12,8 +12,9 @@ No auth, deliberately — see [Auth](#auth) below.
 
 Built as a working version of an interview exercise — the point it makes is that
 storage and hosting are one decision, and the code is arranged so you can see it:
-`DATABASE_URL` is the only thing that changes between "data on this box's disk"
-and "data over the network, servers disposable."
+`DATABASE_URL` is the only thing that changes between keeping the data on the
+machine that runs the app and keeping it in a database the app connects to. The
+second one is what lets you throw the machine away and start another.
 
 ## Run it
 
@@ -68,8 +69,9 @@ restores the dataset to what `data/items.csv` describes.
 
 ### What the infrastructure says
 
-- **RDS, not a file on disk.** The Lambdas hold no state, so they are
-  disposable — any concurrency, replaced at will, nothing to back up on them.
+- **RDS, not a file on disk.** Nothing is saved on the Lambda itself, so AWS can
+  destroy and recreate it at any time, and run as many copies at once as the
+  traffic needs, without anything being lost. There is nothing on it to back up.
 - **The database has no public endpoint.** Its security group accepts traffic
   from the Lambda's security group, not from a CIDR range.
 - **Seeding is a separate one-off function**, not startup code, so concurrent

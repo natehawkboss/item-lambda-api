@@ -8,14 +8,14 @@ from app.config import settings
 _is_sqlite = settings.database_url.startswith("sqlite")
 
 # SQLite is a local-development convenience, never a deployment target. It
-# stores data on the local disk of whatever machine is running the app, which
-# means that machine can never be replaced or scaled out without losing data.
-# Refuse to start rather than discover that in production.
+# writes to the disk of whatever machine is running the app, so replacing that
+# machine — or running a second copy — loses data. Refuse to start rather than
+# discover that in production.
 if _is_sqlite and settings.environment != "local":
     raise RuntimeError(
         f"DATABASE_URL is SQLite but ENVIRONMENT={settings.environment!r}. "
-        "SQLite keeps data on the container's own disk, which makes the server "
-        "un-replaceable. Point DATABASE_URL at a managed Postgres."
+        "SQLite writes to this container's own disk, so the data disappears "
+        "when the container does. Point DATABASE_URL at a managed Postgres."
     )
 
 # check_same_thread is a SQLite-only quirk.

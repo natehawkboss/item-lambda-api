@@ -67,9 +67,10 @@ resource "aws_security_group" "db" {
 }
 
 # ---------------------------------------------------------------------------
-# Database. The reason this exists rather than a SQLite file: data on a local
-# disk makes the compute un-replaceable. Over the network, the Lambdas are
-# disposable and can scale to any concurrency without owning any state.
+# Database. The reason this exists rather than a SQLite file: a file on a local
+# disk disappears with the machine that holds it. Keeping the data here instead
+# means AWS can destroy and recreate the Lambdas freely, and run as many at once
+# as the traffic needs, without anything being lost.
 # ---------------------------------------------------------------------------
 
 resource "random_password" "db" {
