@@ -1,0 +1,25 @@
+name,model_number,type,site_code
+String Inverter A1,SUN-2100-XT,inverter,BAB-01
+String Inverter A2,SUN-2100-XT,inverter,BAB-01
+Central Inverter B1,SUN-5000-CX,inverter,BAB-01
+Pad Transformer T1,PTX-480-1200,transformer,BAB-01
+Revenue Meter M1,MTR-9000,meter,BAB-01
+String Inverter C1,SUN-2100-XT,inverter,DES-02
+Pad Transformer T2,PTX-480-1200,transformer,DES-02
+Revenue Meter M2,MTR-9000,meter,DES-02
+Turbine Unit W1,GE-15-77,turbine,HRN-03
+Turbine Unit W2,GE-15-77,turbine,HRN-03
+Turbine Unit W3,GE-16-82,turbine,HRN-03
+Gearbox G1,GBX-770,gearbox,HRN-03
+Pad Transformer T3,PTX-690-2500,transformer,HRN-03
+Turbine Unit W4,VES-V110,turbine,BRK-04
+Turbine Unit W5,VES-V110,turbine,BRK-04
+Gearbox G2,GBX-880,gearbox,BRK-04
+Revenue Meter M3,MTR-9000,meter,BRK-04
+String Inverter D1,SUN-3300-XT,inverter,SHU-05
+String Inverter D2,SUN-3300-XT,inverter,SHU-05
+Tracker Controller K1,TRK-220,controller,SHU-05
+Breaker BK1,BRK-138KV,breaker,MAR-06
+Breaker BK2,BRK-138KV,breaker,MAR-06
+Power Transformer T4,PTX-138-50MVA,transformer,MAR-06
+Revenue Meter M4,MTR-9500,meter,MAR-06

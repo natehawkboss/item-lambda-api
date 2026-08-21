@@ -1,0 +1,22 @@
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+*.db
+.DS_Store
+
+# Lambda build output
+build/
+
+# Terraform — state contains the database password in plaintext
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+crash.log
+
+# Local working notes, not part of the public project
+AGENTS.md
+ROADMAP.md

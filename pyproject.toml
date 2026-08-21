@@ -1,0 +1,27 @@
+[project]
+name = "nextera-demo"
+version = "0.1.0"
+description = "Asset reporting API — sites and items. FastAPI + SQLAlchemy, SQLite locally, Postgres in prod."
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn>=0.32",
+    "sqlalchemy>=2.0",
+    "pydantic>=2.9",
+    "pydantic-settings>=2.6",
+    # psycopg3 — ships manylinux wheels, so the Lambda package cross-builds
+    # from macOS without Docker.
+    "psycopg[binary]>=3.2",
+    # ASGI <-> Lambda adapter.
+    "mangum>=0.19",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "httpx>=0.27",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

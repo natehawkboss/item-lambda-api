@@ -1,0 +1,3 @@
+# Copy to terraform.tfvars (gitignored) and set the AWS CLI profile to deploy with.
+aws_profile = "your-profile-name"
+region      = "us-east-1"
